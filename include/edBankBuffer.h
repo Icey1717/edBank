@@ -92,7 +92,6 @@ public:
 	undefined field_0x2f;
 	edCBankBuffer* pNextBank;
 	edCBankBuffer* pPrevBank;
-	edCBankBufferEntry* pBankFileAccessObject;
 };
 
 #endif //_ED_BANK_BUFFER_H

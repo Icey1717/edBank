@@ -5,9 +5,12 @@
 #include "edMem.h"
 
 #define IO_LOG_DISABLED(...)
-#define IO_LOG(...)
+#define IO_LOG(level, format, ...) MY_LOG_CATEGORY("io", level, format, ##__VA_ARGS__)
 
 struct edFILEH;
+
+#define BANK_CALLBACK_MESH 0x4
+#define BANK_CALLBACK_TEXTURE 0x5
 
 PACK(struct FileTypeData {
 	ushort stype;

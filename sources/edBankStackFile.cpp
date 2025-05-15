@@ -4,7 +4,7 @@
 
 #include "edBankFile.h"
 #include "edFile.h"
-#include "edSystem.h"
+#include "EdenLib/edSys/sources/EdSystem.h"
 #include "edBankBuffer.h"
 
 edCBankStack edBankStack;
@@ -16,11 +16,11 @@ void edBankStackFileCallBack(int idA, int idB, char* pReadBuffer)
 	void* puVar1;
 	LoadBankFileFunc pLVar2;
 	edFILEH* pDVar3;
-	int iVar4;
+	int bankStackCurIndex;
 	uint uVar5;
 	edCFiler_Bnk_static_header* pcVar1;
 
-	iVar4 = edBankStack.currentIndex;
+	bankStackCurIndex = edBankStack.currentIndex;
 	if (edBankStack.loadedBanks != 0) {
 		pcVar1 = (edCFiler_Bnk_static_header*)edBankStack.aBankQueue[edBankStack.currentIndex].pReadBuffer;
 		if ((edCFiler_Bnk_static_header*)pReadBuffer == pcVar1) {
@@ -31,8 +31,9 @@ void edBankStackFileCallBack(int idA, int idB, char* pReadBuffer)
 			if (((pcVar1->fileHeader).flags_0x4 & 1) != 0) {
 				pcVar1->fileHeader.unpack();
 			}
-			if ((edBankStack.aBankQueue[iVar4].fileFlagB_0x18 & 8U) == 0) {
-				pLVar2 = edBankStack.aBankQueue[iVar4].fileFunc_0x14;
+
+			if ((edBankStack.aBankQueue[bankStackCurIndex].fileFlagB_0x18 & 8U) == 0) {
+				pLVar2 = edBankStack.aBankQueue[bankStackCurIndex].fileFunc_0x14;
 				if (pLVar2 != (LoadBankFileFunc)0x0) {
 					(pLVar2)(false, puVar1);
 				}
@@ -42,18 +43,22 @@ void edBankStackFileCallBack(int idA, int idB, char* pReadBuffer)
 				}
 				pcVar1->fileHeader.analyse();
 			}
-			pDVar3 = edBankStack.aBankQueue[iVar4].pDebugBankData;
+
+			pDVar3 = edBankStack.aBankQueue[bankStackCurIndex].pDebugBankData;
 			if (pDVar3 != (edFILEH*)0x0) {
 				uVar5 = edFileGetSize(pDVar3);
 				(pcVar1->fileHeader).sizePacked = uVar5;
 			}
+
 			edBankStack.loadedBanks = edBankStack.loadedBanks + -1;
+
 			if ((edBankStack.loadedBanks != 0) &&
 				(edBankStack.currentIndex = edBankStack.currentIndex + 1, edBankStack.currentIndex == 0xc)) {
 				edBankStack.currentIndex = 0;
 			}
 		}
 	}
+
 	return;
 }
 
@@ -74,19 +79,20 @@ bool edCBankStack::add_file(edCBankStackElement* pInBank)
 		pRVar2->fileFlagB_0x18 = pInBank->fileFlagB_0x18;
 		this->loadedBanks = this->loadedBanks + 1;
 	}
+
 	return iVar1 != 0xc;
 }
 
 void edCBankStack::terminate()
 {
-	//edSysHandlersRemove(edFileHandlers.nodeParent, edFileHandlers.entries, edFileHandlers.maxEventID, 4, edBankStackFileCallBack);
+	edSysHandlersRemove(edFileHandlers.nodeParent, edFileHandlers.entries, edFileHandlers.maxEventID, ED_HANDLER_FILE_READ, edBankStackFileCallBack);
 	memset(this, 0, sizeof(edCBankStack));
 }
 
 void edCBankStack::initialize()
 {
 	memset(this, 0, sizeof(edCBankStack));
-	edSysHandlersAdd(edFileHandlers.nodeParent, edFileHandlers.entries, edFileHandlers.maxEventID, ESHT_LoadFile, edBankStackFileCallBack, 1, 1);
+	edSysHandlersAdd(edFileHandlers.nodeParent, edFileHandlers.entries, edFileHandlers.maxEventID, ED_HANDLER_FILE_READ, edBankStackFileCallBack, 1, 1);
 	return;
 }
 

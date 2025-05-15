@@ -515,9 +515,10 @@ void edCBankFileHeader::apply_callback(edCBankCallback* pTypePairData, int mode)
 					pFileHeaderStart = (char*)(((char*)this - 8) + this->fileHeaderDataOffset);
 				}
 
-				IO_LOG(LogLevel::Info, "Executing for {}\n", DebugFindFilePath(this, uVar3));
+				char* pFileName = DebugFindFilePath(this, uVar3);
+				IO_LOG(LogLevel::Info, "Executing for {}\n", pFileName);
 
-				NAME_NEXT_OBJECT(DebugFindFilePath(this, uVar3));
+				NAME_NEXT_OBJECT(pFileName);
 
 				FileHeaderFileData* pFileHeaderData = (FileHeaderFileData*)(pFileHeaderStart + iVar4 + 8);
 				puVar8->pFunction[mode](this->header + pFileHeaderData->offset - 8, pFileHeaderData->size);
